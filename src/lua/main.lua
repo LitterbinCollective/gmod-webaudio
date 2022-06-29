@@ -2,6 +2,6 @@ local WebAudio = {}
 WebAudio._M = WebAudio
 WebAudio._NAME = "WebAudio"
 
-WebAudio.Browser = require("browser")
+WebAudio.BrowserController = require("browser")
 
 return WebAudio
