@@ -1,0 +1,25 @@
+{
+  "name": "gmod-webaudio",
+  "version": "1.0.0",
+  "description": "Web Audio utilities for Garry's Mod.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LitterbinCollective/gmod-webaudio.git"
+  },
+  "keywords": [],
+  "author": "LitterbinCollective",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/LitterbinCollective/gmod-webaudio/issues"
+  },
+  "homepage": "https://github.com/LitterbinCollective/gmod-webaudio#readme",
+  "devDependencies": {
+    "esbuild": "^0.14.47",
+    "luabundle": "^1.6.0"
+  }
+}
