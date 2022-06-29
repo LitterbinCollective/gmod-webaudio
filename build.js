@@ -10,6 +10,7 @@ const { bundle } = require('luabundle');
 		bundle: true,
 		minify: true,
 		platform: 'browser',
+		target: 'chrome18',
 		/* i wish there was a way to output the bundle directly to
 		   the result object */
 		outfile: jsOutfile
