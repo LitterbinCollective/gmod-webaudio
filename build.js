@@ -11,7 +11,7 @@ const { bundle } = require('luabundle');
 		minify: true,
 		platform: 'browser',
 		/* i wish there was a way to output the bundle directly to
-			 the result object */
+		   the result object */
 		outfile: jsOutfile
 	});
 
