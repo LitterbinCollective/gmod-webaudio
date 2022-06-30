@@ -18,25 +18,68 @@ do
 		self.Destroyed = true
 	end
 
-	function BrowserController:_SafetyCheck()
-		if not self.DHTML then return error("browser not initialized yet") end
+	function BrowserController:SafetyCheck()
+		if not self._DHTML then return error("browser not initialized yet") end
 		if self.Destroyed then
 			return error("cannot call functions on a destroyed BrowserController")
 		end
 	end
 
 	function BrowserController:SetVolume(volume)
-		self:_SafetyCheck()
-		self.DHTML:RunJavascript(("$ctx.gain.gain.value = %d;"):format(math.Clamp(volume, 0, 1)))
+		self:SafetyCheck()
+		self._DHTML:RunJavascript(("$ctx.gain.gain.value = %d;"):format(math.Clamp(volume, 0, 1)))
 	end
 
-	function BrowserController:Register(nodeName, callback)
-		self:_SafetyCheck()
+	function BrowserController:Request(nodeName, options, callback)
+		self:SafetyCheck()
+
+		local id = bit.tohex(math.floor(math.random() * 16 ^ 8 - 1))
+		self.Callbacks[id] = callback
+		self._DHTML:RunJavascript(
+			([[$ctx.requestNode("%s", %s, "%s")]])
+				:format(nodeName:JavascriptSafe(), util.TableToJSON(options), id)
+		)
+	end
+
+	function BrowserController:UpdateOptions(id, options)
+		self:SafetyCheck()
+		self._DHTML:RunJavascript(
+			([[$ctx.updateOptions("%s", %s)]])
+				:format(id:JavascriptSafe(), util.TableToJSON(options))
+		)
+	end
+
+	function BrowserController:Execute(id, name)
+		self:SafetyCheck()
+		self._DHTML:RunJavascript(
+			([[$ctx.execute("%s", "%s")]])
+				:format(id:JavascriptSafe(), name:JavascriptSafe())
+		)
+	end
+
+	function BrowserController:Connect(id1, id2)
+		self:SafetyCheck()
+		id2 = id2 or "master"
+		self._DHTML:RunJavascript(
+			([[$ctx.connect("%s", "%s")]])
+				:format(id1:JavascriptSafe(), id2:JavascriptSafe())
+		)
+	end
+
+	function BrowserController:Disconnect(id1, id2)
+		self:SafetyCheck()
+		id2 = id2 or "all"
+		self._DHTML:RunJavascript(
+			([[$ctx.disconnect("%s", "%s")]])
+				:format(id1:JavascriptSafe(), id2:JavascriptSafe())
+		)
 	end
 end
 
+local DHTML
+
 do -- DHTML
-	local DHTML = vgui.Create("DHTML")
+	DHTML = vgui.Create("DHTML")
 	DHTML:SetSize(8, 8)
 	DHTML:SetAlpha(0)
 	DHTML:ParentToHUD()
@@ -53,6 +96,18 @@ do -- DHTML
 	end
 
 	BrowserController._DHTML = DHTML
+end
+
+do -- DHTML gmodinterface functions
+	local TAG = "gmodinterface"
+	DHTML:AddFunction(TAG, "Callback", function(id)
+		local callback = DHTML.BrowserController.Callbacks[id]
+		if callback then
+			DHTML.BrowserController:Log("Successfully created node", id)
+			callback(id)
+			DHTML.BrowserController.Callbacks[id] = nil
+		end
+	end)
 end
 
 do -- Autoplay fix
