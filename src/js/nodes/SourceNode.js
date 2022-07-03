@@ -1,28 +1,62 @@
-function SourceNode(ctx, options) {
-	this.ctx = ctx;
-	this.options = options;
+var BaseNode = require('../BaseNode');
 
-	this.node = this.ctx.audio.createBufferSource();
+function SourceNode(ctx, options) {
+	BaseNode.call(this, ctx, options);
+	this.input = this.output = this.ctx.audio.createBufferSource();
 }
+
+SourceNode.prototype = Object.create(BaseNode.prototype);
+SourceNode.prototype.constructor = SourceNode;
 
 SourceNode.prototype.initialize = function(cb) {
 	var _this = this;
-	var request = new XMLHttpRequest();
-	request.open('GET', this.options[0]);
-	request.responseType = 'arraybuffer';
-	request.send();
-	request.onload = function() {
-		_this.ctx.audio.decodeAudioData(
-			request.response,
-			function(buffer) {
-				_this.node.buffer = buffer;
-				cb();
-			},
-			function(err) {
-				console.log(err.message);
+	function callback(buffer) {
+		if (!buffer && _this.cache)
+			buffer = _this.cache
+		else
+			_this.cache = buffer;
+
+		var pitch = _this.options[1];
+		if (pitch < 0) {
+			var reverse = _this.ctx.audio.createBuffer(
+				buffer.numberOfChannels,
+				buffer.length,
+				buffer.sampleRate
+			)
+
+			for (var c = 0; c < buffer.numberOfChannels; c++) {
+				var dest = reverse.getChannelData(c);
+				var src = buffer.getChannelData(c);
+
+				for (var sample = 0; sample < buffer.length; sample++)
+					dest[sample] = src[buffer.length - sample];
 			}
-		);
-	};
+
+			buffer = reverse;
+		}
+		_this.input.buffer = buffer;
+		_this.input.playbackRate.value = Math.abs(pitch);
+
+		cb();
+	}
+
+	if (this.options[0] !== this.previousURL) {
+		this.previousURL = this.options[0];
+		var request = new XMLHttpRequest();
+		request.open('GET', this.options[0]);
+		request.responseType = 'arraybuffer';
+		request.send();
+		request.onload = function() {
+			_this.ctx.audio.decodeAudioData(
+				request.response,
+				callback,
+				function(err) {
+					console.log(err.message);
+				}
+			);
+		};
+	} else
+		callback();
 }
 
 SourceNode.prototype.onUpdateOptions = function() {
@@ -32,17 +66,9 @@ SourceNode.prototype.onUpdateOptions = function() {
 SourceNode.prototype.execute = function(name) {
 	switch (name) {
 		case 'start':
-			this.node.start();
+			this.input.start();
 			break;
 	}
-}
-
-SourceNode.prototype.connect = function(destination) {
-	this.node.connect(destination.node ? destination.node : destination.audio.destination);
-}
-
-SourceNode.prototype.disconnect = function(destination) {
-	this.node.disconnect(destination ? destination.node : undefined);
 }
 
 module.exports = SourceNode;

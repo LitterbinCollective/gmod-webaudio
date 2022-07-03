@@ -1,4 +1,4 @@
-import './polyfill';
+import './lib/polyfill';
 
 function Context() {
 	this.audio = new AudioContext();
@@ -9,7 +9,9 @@ function Context() {
 	this.gain.connect(this.audio.destination);
 
 	this.availableNodes = {
-		SourceNode: require('./nodes/SourceNode.js')
+		ReverbNode: require('./nodes/ReverbNode'),
+		SourceNode: require('./nodes/SourceNode'),
+		VolumeNode: require('./nodes/VolumeNode')
 	};
 	this.nodes = {};
 }
