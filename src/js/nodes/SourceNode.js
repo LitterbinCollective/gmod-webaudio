@@ -2,7 +2,6 @@ var BaseNode = require('../BaseNode');
 
 function SourceNode(ctx, options) {
 	BaseNode.call(this, ctx, options);
-	this.input = this.output = this.ctx.audio.createBufferSource();
 }
 
 SourceNode.prototype = Object.create(BaseNode.prototype);
@@ -10,14 +9,16 @@ SourceNode.prototype.constructor = SourceNode;
 
 SourceNode.prototype.initialize = function(cb) {
 	var _this = this;
+	var isNew = this.options[0] !== this.previousURL;
 	function callback(buffer) {
-		if (!buffer && _this.cache)
+		if (!isNew)
 			buffer = _this.cache
 		else
 			_this.cache = buffer;
 
 		var pitch = _this.options[1];
-		if (pitch < 0) {
+		var createNew = false;
+		if (pitch < 0 && (!_this.reversed || isNew)) {
 			var reverse = _this.ctx.audio.createBuffer(
 				buffer.numberOfChannels,
 				buffer.length,
@@ -32,15 +33,25 @@ SourceNode.prototype.initialize = function(cb) {
 					dest[sample] = src[buffer.length - sample];
 			}
 
+			createNew = true;
 			buffer = reverse;
+			_this.reversed = true;
+		} else if (_this.reversed || isNew) {
+			createNew = true;
+			_this.reversed = false;
 		}
-		_this.input.buffer = buffer;
+
+		if (createNew) {
+			_this.input = _this.output = _this.ctx.audio.createBufferSource();
+			_this.input.buffer = buffer;
+		}
+
 		_this.input.playbackRate.value = Math.abs(pitch);
 
-		cb();
+		if (cb) cb();
 	}
 
-	if (this.options[0] !== this.previousURL) {
+	if (isNew) {
 		this.previousURL = this.options[0];
 		var request = new XMLHttpRequest();
 		request.open('GET', this.options[0]);

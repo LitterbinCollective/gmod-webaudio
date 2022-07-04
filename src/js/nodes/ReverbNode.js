@@ -24,7 +24,7 @@ ReverbNode.prototype.initialize = function(cb) {
 	}
 
 	this.input.buffer = impulse;
-	cb();
+	if (cb) cb();
 }
 
 ReverbNode.prototype.onUpdateOptions = function() {

@@ -10,7 +10,7 @@ VolumeNode.prototype.constructor = VolumeNode;
 
 VolumeNode.prototype.initialize = function(cb) {
 	this.input.gain.value = this.options[0];
-	cb();
+	if (cb) cb();
 }
 
 VolumeNode.prototype.onUpdateOptions = function() {

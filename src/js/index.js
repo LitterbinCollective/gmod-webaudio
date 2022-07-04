@@ -1,3 +1,7 @@
+/*!
+  Copyright Litterbin Collective
+  SPDX-License-Identifier: Apache-2.0
+*/
 import './lib/polyfill';
 
 function Context() {
