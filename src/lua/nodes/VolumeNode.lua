@@ -1,15 +1,13 @@
 local BaseNode = require("BaseNode")
+local DECLARE_SETTERS_GETTERS = require("settersgetters")
 
 local VolumeNode = {}
 VolumeNode._NAME = "VolumeNode"
 
 do
-	function VolumeNode:SetGain(gain)
-		if type(gain) ~= "number" then error("not a number") end
-		if gain == nan or gain == math.huge then return end
-		self.Options[1] = gain
-		self:UpdateOptions()
-	end
+	DECLARE_SETTERS_GETTERS(VolumeNode, {
+		{ name = "Gain", type = "number" },
+	})
 end
 
 return BaseNode.Extend(VolumeNode)
