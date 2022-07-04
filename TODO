@@ -1,0 +1,5 @@
+- [x] populate metatables with setters and getters without declaring every function manually
+- [ ] lfo stuff (lua? or js? or both?)
+- [ ] echo stuff; i like the previous one, you can make it really fucking loud, therefore
+  probably migrate this
+- [ ] equalizer stuff (lowpass, highpass, bass, treble, whatever)
