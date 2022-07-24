@@ -1,4 +1,4 @@
-local BaseNode = require("BaseNode")
+local BaseNode = require("basenode")
 local DECLARE_SETTERS_GETTERS = require("settersgetters")
 
 local VolumeNode = {}
